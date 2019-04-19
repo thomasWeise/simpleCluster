@@ -153,7 +153,7 @@ final class _Queue {
       String d = dir.trim();
       for (;;) {
         final int len = d.length();
-        if ((len <= 0) || d.isBlank() || (d.indexOf(';') >= 0)) {
+        if ((len <= 0) || (d.indexOf(';') >= 0)) {
           throw new IllegalArgumentException("directory '" + dir
               + "', equivalent to '" + d + "' is invalid");
         }
@@ -216,7 +216,7 @@ final class _Queue {
               if (size > 0) {
                 looper: for (int lineIndex = 0; lineIndex < size; lineIndex++) {
                   final String s = lines.get(lineIndex);
-                  if ((s != null) && (!(s.isEmpty() || s.isBlank()))) {
+                  if ((s != null) && (!s.isEmpty())) {
                     final int idx = s.indexOf(';');
                     if ((idx > 0) && (idx < (s.length() - 1))) {
                       res[0] = new String[] { s.substring(0, idx).trim(),
