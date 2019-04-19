@@ -31,30 +31,24 @@ final class _Queue {
       .canonicalizePath(_Queue._QUEUE_DIR.resolve(".queue"));
 
   /** the queue lock */
-  private static final Path QUEUE_LOCK =
-      IOUtils.canonicalizePath(
-          _Queue._QUEUE_DIR.resolve(".queue.lock"));
+  private static final Path QUEUE_LOCK = IOUtils
+      .canonicalizePath(_Queue._QUEUE_DIR.resolve(".queue.lock"));
 
   /**
-   * sleep for at least 100ms when waiting for accessing the
-   * queue
+   * sleep for at least 100ms when waiting for accessing the queue
    */
   private static final long MIN_QUEUE_SLEEP = 3000L;
   /**
-   * the maximum time to sleep when waiting for accessing the
-   * queue
+   * the maximum time to sleep when waiting for accessing the queue
    */
   private static final long MAX_QUEUE_SLEEP = 30000L;
 
   /**
-   * sleep for at least 100ms when waiting for getting the next
-   * job
+   * sleep for at least 100ms when waiting for getting the next job
    */
-  private static final long MIN_JOB_SLEEP =
-      _Queue.MIN_QUEUE_SLEEP;
+  private static final long MIN_JOB_SLEEP = _Queue.MIN_QUEUE_SLEEP;
   /**
-   * the maximum time to sleep when waiting for getting the next
-   * job
+   * the maximum time to sleep when waiting for getting the next job
    */
   private static final long MAX_JOB_SLEEP = 180000L;
 
@@ -64,8 +58,7 @@ final class _Queue {
    * @param accessor
    *          the accessor
    */
-  private static final void
-      __accessQueue(final Consumer<Path> accessor) {
+  private static final void __accessQueue(final Consumer<Path> accessor) {
     long queueSleep = _Queue.MIN_QUEUE_SLEEP;
     synchronized (_Queue.SYNCH) {
       outer: for (;;) {
@@ -83,13 +76,14 @@ final class _Queue {
           } catch (final InterruptedException ie) {
             // ignore
           }
-          queueSleep = Math.max(_Queue.MIN_QUEUE_SLEEP, Math.min(
-              _Queue.MAX_QUEUE_SLEEP, (queueSleep * 10) / 9));
+          queueSleep = Math.max(_Queue.MIN_QUEUE_SLEEP,
+              Math.min(_Queue.MAX_QUEUE_SLEEP, (queueSleep * 10) / 9));
           continue outer;
         }
         if (lock == null) {
-          ConsoleIO.stderr("lock file '" + _Queue.QUEUE_LOCK
-              + "' has null name??", null);
+          ConsoleIO.stderr(
+              "lock file '" + _Queue.QUEUE_LOCK + "' has null name??",
+              null);
           lock = _Queue.QUEUE_LOCK;
         }
 
@@ -111,8 +105,7 @@ final class _Queue {
             Files.delete(lock);
           } catch (final Throwable error) {
             ConsoleIO.stderr(
-                "error when deleting lock file '" + lock + '\'',
-                error);
+                "error when deleting lock file '" + lock + '\'', error);
           }
         }
       }
@@ -129,12 +122,12 @@ final class _Queue {
    * @param times
    *          the number of times to submit the job
    */
-  static final void _submit(final String command,
-      final String dir, final int times) {
+  static final void _submit(final String command, final String dir,
+      final int times) {
 
     ConsoleIO.stdout("Start submission of command '" + command
-        + "' in directory '" + dir + "' for " + times
-        + " times to queue '" + _Queue._QUEUE_DIR + '\'');
+        + "' in directory '" + dir + "' for " + times + " times to queue '"
+        + _Queue._QUEUE_DIR + '\'');
 
     if (times <= 0) {
       throw new IllegalArgumentException(
@@ -145,14 +138,12 @@ final class _Queue {
     synchronized (_Queue.SYNCH) {
       for (;;) {
         final int len = c.length();
-        if ((len <= 0) || c.isBlank() || (c.indexOf(';') >= 0)) {
-          throw new IllegalArgumentException(
-              "command '" + command + "', equivalent to '" + c
-                  + "' is invalid");
+        if ((len <= 0) || (c.indexOf(';') >= 0)) {
+          throw new IllegalArgumentException("command '" + command
+              + "', equivalent to '" + c + "' is invalid");
         }
         final char ch = c.charAt(0);
-        if (((ch == '\'') || (ch == '"'))
-            && (c.charAt(len - 1) == ch)) {
+        if (((ch == '\'') || (ch == '"')) && (c.charAt(len - 1) == ch)) {
           c = c.substring(1, len - 1).trim();
         } else {
           break;
@@ -167,8 +158,7 @@ final class _Queue {
               + "', equivalent to '" + d + "' is invalid");
         }
         final char ch = d.charAt(0);
-        if (((ch == '\'') || (ch == '"'))
-            && (d.charAt(len - 1) == ch)) {
+        if (((ch == '\'') || (ch == '"')) && (d.charAt(len - 1) == ch)) {
           d = d.substring(1, len - 1).trim();
         } else {
           break;
@@ -181,8 +171,7 @@ final class _Queue {
       _Queue.__accessQueue((path) -> {
 
         try (BufferedWriter bw = Files.newBufferedWriter(path,
-            StandardOpenOption.APPEND,
-            StandardOpenOption.CREATE)) {
+            StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
 
           final String line = cc + ';' + dd;
           for (int i = times; (--i) >= 0;) {
@@ -193,8 +182,8 @@ final class _Queue {
           bw.flush();
         } catch (final Throwable error) {
           ConsoleIO.stderr("error when submitting command '" + cc
-              + "' for directory '" + dd + "' to queue '" + path
-              + "' for " + times + " times.", error);
+              + "' for directory '" + dd + "' to queue '" + path + "' for "
+              + times + " times.", error);
         }
       });
     }
@@ -218,23 +207,19 @@ final class _Queue {
               lines = Files.readAllLines(path);
             } catch (final Throwable error) {
               ConsoleIO.stderr(//
-                  "error when trying to read queue '" + path
-                      + '\'',
+                  "error when trying to read queue '" + path + '\'',
                   error);
               lines = null;
             }
             if (lines != null) {
               final int size = lines.size();
               if (size > 0) {
-                looper: for (int lineIndex = 0; lineIndex < size;
-                    lineIndex++) {
+                looper: for (int lineIndex = 0; lineIndex < size; lineIndex++) {
                   final String s = lines.get(lineIndex);
-                  if ((s != null)
-                      && (!(s.isEmpty() || s.isBlank()))) {
+                  if ((s != null) && (!(s.isEmpty() || s.isBlank()))) {
                     final int idx = s.indexOf(';');
                     if ((idx > 0) && (idx < (s.length() - 1))) {
-                      res[0] = new String[] {
-                          s.substring(0, idx).trim(),
+                      res[0] = new String[] { s.substring(0, idx).trim(),
                           s.substring(idx + 1).trim() };
                       try {
                         Files.write(path,
@@ -243,9 +228,8 @@ final class _Queue {
                       } catch (final Throwable error) {
                         ConsoleIO.stderr(//
                             "error when trying to write back job from queue to '"
-                                + path + "' after taking job '"
-                                + res[0][0] + "' for dir '"
-                                + res[0][1] + '\'',
+                                + path + "' after taking job '" + res[0][0]
+                                + "' for dir '" + res[0][1] + '\'',
                             error);
                       }
                       break looper;
@@ -257,15 +241,14 @@ final class _Queue {
 
           } catch (final Throwable error) {
             ConsoleIO.stderr(//
-                "error when trying to get job from queue '"
-                    + path + '\'',
+                "error when trying to get job from queue '" + path + '\'',
                 error);
           }
         });
 
         if (res[0] != null) {
-          ConsoleIO.stdout("received job '" + res[0][0]
-              + "' for dir '" + res[0][1] + '\'');
+          ConsoleIO.stdout("received job '" + res[0][0] + "' for dir '"
+              + res[0][1] + '\'');
           return res[0];
         }
 
