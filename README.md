@@ -71,11 +71,11 @@ To create a permanently shared directory under Linux, proceed as follows.
 
 1. Create the shared directory on the main file server computer, let's call the share `cluster`.
 2. On every single of the working computers and on the computer from which you want to submit jobs, proceed as follows:
-   a. `sudo mkdir -p /cluster` (create the local cluster directory)
-   b. `sudo nano /etc/fstab` to edit the file system list
-   c. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the username and password.
-   d. save and exit `nano`
-   e. do `sudo mount -a`
+   i. `sudo mkdir -p /cluster` (create the local cluster directory)
+   ii. `sudo nano /etc/fstab` to edit the file system list
+   iii. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the username and password.
+   iv. save and exit `nano`
+   v. do `sudo mount -a`
 
 You now can access the same shared directory, `/cluster`, from your job submission PC and from all worker PCs.
 Now you should copy the `simpleCluster.jar` there.
