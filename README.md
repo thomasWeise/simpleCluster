@@ -31,6 +31,8 @@ I don't care about that.
 I just want a simple distributed job executor that only needs a minimum software installation (i.e., Java).
 It uses a simple text file and a lock file for queue management, so if you have more than 10 or so worker PCs and more than 1000 or so jobs at once, expect a significant performance decrease.
 
+For any more sophisticated cluster usage, e.g., for one that will work with more nodes or has user management or other fancy features, please check [this list](https://en.wikipedia.org/wiki/Comparison_of_cluster_software).
+
 ## 2. Usage
 
 The concept of our simple scheduler is building on shared directories.
@@ -69,11 +71,12 @@ To create a permanently shared directory under Linux, proceed as follows.
 
 1. Create the shared directory on the main file server computer, let's call the share `cluster`.
 2. On every single of the working computers and on the computer from which you want to submit jobs, proceed as follows:
-    a. `sudo mkdir -p /cluster` (create the local cluster directory)
-    b. `sudo nano /etc/fstab` to edit the file system list
-    c. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the username and password.
-    d. save and exit `nano`
-    e. do `sudo mount -a`
+
+   a. `sudo mkdir -p /cluster` (create the local cluster directory)
+   b. `sudo nano /etc/fstab` to edit the file system list
+   c. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the username and password.
+   d. save and exit `nano`
+   e. do `sudo mount -a`
 
 You now can access the same shared directory, `/cluster`, from your job submission PC and from all worker PCs.
 Now you should copy the `simpleCluster.jar` there.
