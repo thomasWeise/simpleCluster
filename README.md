@@ -33,6 +33,8 @@ It uses a simple text file and a lock file for queue management, so if you have 
 
 For any more sophisticated cluster usage, e.g., for one that will work with more nodes or has user management or other fancy features, please check [this list](https://en.wikipedia.org/wiki/Comparison_of_cluster_software).
 
+This system has only been tested under [Ubuntu](https://en.wikipedia.org/wiki/Ubuntu) [Linux](https://en.wikipedia.org/wiki/Linux).
+
 ## 2. Usage
 
 The concept of our simple scheduler is building on shared directories.
