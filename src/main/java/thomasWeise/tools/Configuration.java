@@ -15,8 +15,7 @@ import java.util.function.Supplier;
 public final class Configuration {
 
   /** the internal configuration map */
-  private static final HashMap<String, Object> CONFIGURATION =
-      new HashMap<>();
+  private static final HashMap<String, Object> CONFIGURATION = new HashMap<>();
 
   /**
    * Run the given {@link java.lang.Runnable} in a synchronized
@@ -25,8 +24,7 @@ public final class Configuration {
    * @param run
    *          the runnable
    */
-  public static final void
-      synchronizedConfig(final Runnable run) {
+  public static final void synchronizedConfig(final Runnable run) {
     synchronized (Configuration.CONFIGURATION) {
       run.run();
     }
@@ -91,16 +89,15 @@ public final class Configuration {
    * @param value
    *          the value
    */
-  public static final void putInteger(final String key,
-      final int value) {
+  public static final void putInteger(final String key, final int value) {
     Configuration.putInteger(key, Integer.valueOf(value));
   }
 
   /**
-   * Put a string to the map. The string is considered to be in
-   * the form {@code key=value} or {@code key:value} and may be
-   * preceded by any number of {@code -} or {@code /}-es. If the
-   * value part is missing {@code "true"} is used as value.
+   * Put a string to the map. The string is considered to be in the form
+   * {@code key=value} or {@code key:value} and may be preceded by any
+   * number of {@code -} or {@code /}-es. If the value part is missing
+   * {@code "true"} is used as value.
    *
    * @param s
    *          the string
@@ -126,8 +123,7 @@ public final class Configuration {
 
     for (i = 0; i < len; i++) {
       ch = t.charAt(i);
-      if ((ch == '-') || (canUseSlash && (ch == '/'))
-          || (ch <= 32)) {
+      if ((ch == '-') || (canUseSlash && (ch == '/')) || (ch <= 32)) {
         continue;
       }
 
@@ -210,8 +206,7 @@ public final class Configuration {
       }
       if (res instanceof String) {
         final boolean resb = Boolean.parseBoolean((String) res);
-        Configuration.CONFIGURATION.put(key,
-            Boolean.valueOf(resb));
+        Configuration.CONFIGURATION.put(key, Boolean.valueOf(resb));
         return resb;
       }
     }
@@ -249,8 +244,7 @@ public final class Configuration {
       res = Configuration.CONFIGURATION.get(k);
       if (res == null) {
         if (ifNotSet != null) {
-          final Path p =
-              IOUtils.canonicalizePath(ifNotSet.get());
+          final Path p = IOUtils.canonicalizePath(ifNotSet.get());
           if (p != null) {
             Configuration.CONFIGURATION.put(k, p);
           }
@@ -307,8 +301,7 @@ public final class Configuration {
       }
     }
     throw new IllegalStateException("config key '"//$NON-NLS-1$
-        + key
-        + "' is not an integer but an incompatible instance of "//$NON-NLS-1$
+        + key + "' is not an integer but an incompatible instance of "//$NON-NLS-1$
         + res.getClass());
   }
 
@@ -320,8 +313,7 @@ public final class Configuration {
    * @param value
    *          the path
    */
-  public static final void putPath(final String key,
-      final Path value) {
+  public static final void putPath(final String key, final Path value) {
     final String k = Objects.requireNonNull(key);
     final Path p = value.normalize();
     synchronized (Configuration.CONFIGURATION) {
@@ -334,8 +326,8 @@ public final class Configuration {
     ConsoleIO.stdout((stdout) -> {
       stdout.println("The current full configuration is:"); //$NON-NLS-1$
       synchronized (Configuration.CONFIGURATION) {
-        for (final Entry<String,
-            Object> e : Configuration.CONFIGURATION.entrySet()) {
+        for (final Entry<String, Object> e : Configuration.CONFIGURATION
+            .entrySet()) {
           stdout.print('\t');
           stdout.print(e.getKey());
           stdout.print("\t->\t"); //$NON-NLS-1$
@@ -388,12 +380,13 @@ public final class Configuration {
             + res.getClass());
       }
 
-      for (final String dirname : System.getenv("PATH")
+      for (final String dirname : System.getenv("PATH")//$NON-NLS-1$
           .split(File.pathSeparator)) {
-        for (final String ext : new String[] { "", ".exe" }) {
+        for (final String ext : new String[] { "", //$NON-NLS-1$
+            ".exe" }) {//$NON-NLS-1$
           path = IOUtils.canonicalizePath(dirname, name + ext);
           if (Files.isExecutable(path)) {
-            stdout = (name + " executable detected in PATH as "
+            stdout = (name + " executable detected in PATH as "//$NON-NLS-1$
                 + path);
             Configuration.CONFIGURATION.put(name, path);
             break synch;
@@ -403,14 +396,12 @@ public final class Configuration {
       path = null;
 
       try {
-        final Process process =
-            Runtime.getRuntime().exec("which " + name);
+        final Process process = Runtime.getRuntime().exec("which " + name);//$NON-NLS-1$
         try (BufferedReader in = new BufferedReader(
             new InputStreamReader(process.getInputStream()))) {
-          path =
-              IOUtils.canonicalizePath(Paths.get(in.readLine()));
+          path = IOUtils.canonicalizePath(Paths.get(in.readLine()));
           if (Files.isExecutable(path)) {
-            stdout = (name + " executable found via which as "
+            stdout = (name + " executable found via which as "//$NON-NLS-1$
                 + path);
             Configuration.CONFIGURATION.put(name, path);
             break synch;
@@ -429,7 +420,8 @@ public final class Configuration {
       ConsoleIO.stdout(stdout);
     }
     if (path == null) {
-      ConsoleIO.stdout("no " + name + " executable detected.");
+      ConsoleIO.stdout("no '"//$NON-NLS-1$
+          + name + "' executable detected.");//$NON-NLS-1$
     }
     return path;
   }

@@ -23,22 +23,27 @@ All worker computers as well as the job-submitting computers must mount the shar
 
 ### 2.1. Job Submission
 
-`java -jar simpleCluster.jar submit cmd=COMMAND dir=DIRECTORY [times=TIMES]`
+`java -jar simpleCluster.jar submit cmd=COMMAND dir=DIRECTORY [times=TIMES] [blocksMachine]`
 
 Enter the command `COMMAND` to be executed in directory `DIRECTORY` into the job queue.
 If `times` is specified, the command is added `TIMES` times.
 Generally, the directory `DIRECTORY` must exist on all worker computers in the same path.
 Usually, this would be a shared, mounted directory.
-We will then execute the shell `sh` in that directory and write `COMMAND` to its stdin.
+The job executors will then execute the shell in that directory and write `COMMAND` to its stdin.
 The parameter `times` allows you to submit the same command a number of times.
+A job tagged with `blocksMachine` will block all job execution on one machine.
+It will only begin executing once all the threads on the machine are idle and no thread will begin or query for a new job until the blocking job is completed.
 
 ### 2.2. Job Execution
 
-`java -jar simpleCluster.jar run [cores=nCORES]`
+`java -jar simpleCluster.jar run [cores=nCORES] [sh=/path/to/shell]`
 
 Start the worker threads that pick up the jobs and execute them one after the other.
 Via `cores`, you can define the number of workers to launch.
 If `cores` is not specified, the number of workers will be equal to the number of processor cores.
+If `sh` is specified, it must be the path to the shell receiving the commands.
+If `sh` is not specified, we will use the default shell.
+For every command received, a new instance of the shell is launched and the command is piped to it.
 
 ### 2.3. Shared Directories under Ubuntu
 

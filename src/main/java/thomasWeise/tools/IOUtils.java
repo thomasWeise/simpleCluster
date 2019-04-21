@@ -20,8 +20,7 @@ public final class IOUtils {
   public static final Path canonicalizePath(final String first,
       final String... more) {
     if (first == null) {
-      throw new IllegalArgumentException(
-          "path string cannot be null.");//$NON-NLS-1$
+      throw new IllegalArgumentException("path string cannot be null.");//$NON-NLS-1$
     }
     return IOUtils.canonicalizePath(Paths.get(first, more));
   }

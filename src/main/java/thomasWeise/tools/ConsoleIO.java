@@ -6,8 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * With this class, we can write stuff to the console in a
- * thread-safe way.
+ * With this class, we can write stuff to the console in a thread-safe way.
  */
 public final class ConsoleIO {
 
@@ -17,8 +16,8 @@ public final class ConsoleIO {
    * @param print
    *          the stream consumer
    */
-  public static final void
-      print(final BiConsumer<PrintStream, PrintStream> print) {
+  public static final void print(
+      final BiConsumer<PrintStream, PrintStream> print) {
     synchronized (System.out) {
       synchronized (System.err) {
         synchronized (System.in) {
@@ -40,8 +39,7 @@ public final class ConsoleIO {
    * @param out
    *          the output
    */
-  public static final void
-      stdout(final Consumer<PrintStream> out) {
+  public static final void stdout(final Consumer<PrintStream> out) {
     ConsoleIO.print((u, v) -> {
       ConsoleIO.__printDate(u);
       out.accept(u);
@@ -74,7 +72,7 @@ public final class ConsoleIO {
     final Thread c = Thread.currentThread();
     final String id = c.getName();
     if ((id == null) || id.isEmpty()) {
-      sb.append("thread ");
+      sb.append("thread ");//$NON-NLS-1$
       sb.append(c.getId());// $NON-NLS-1$
     } else {
       sb.append(id);
@@ -90,8 +88,7 @@ public final class ConsoleIO {
    * @param out
    *          the output
    */
-  public static final void
-      stderr(final Consumer<PrintStream> out) {
+  public static final void stderr(final Consumer<PrintStream> out) {
     ConsoleIO.print((u, v) -> {
       ConsoleIO.__printDate(v);
       out.accept(v);
@@ -106,8 +103,8 @@ public final class ConsoleIO {
    * @param error
    *          the error
    */
-  public static final void stderr(
-      final Consumer<PrintStream> out, final Throwable error) {
+  public static final void stderr(final Consumer<PrintStream> out,
+      final Throwable error) {
     ConsoleIO.stderr((stderr) -> {
       out.accept(stderr);
       if (error != null) {
