@@ -5,16 +5,31 @@
 ## 1. Introduction
 
 This is a very trivial job scheduling engine for small clusters.
-Here, using some sophisticated system is just too complicated.
-Instead, the idea is that all worker computers mount a shared directory.
+Here, using some [sophisticated systems](https://en.wikipedia.org/wiki/Comparison_of_cluster_software) like [TORQUE](https://en.wikipedia.org/wiki/TORQUE_Resource_Manager) or [SLURM](https://en.wikipedia.org/wiki/Slurm_Workload_Manager) is just too complicated, as they require a lot of installation and configuration effort.
+Instead, we aim to develop a very simple system for distributing jobs that does not require any installation (except for Java) and has one single entry point for job submission and execution.
+We also do not care about rights management or systems security, as this system is strictly for personal use.
+
+The idea is that all worker computers mount a shared directory under exactly the same path.
+You should also mount this directory on your own PC.
 Inside this shared directory, we put the binaries and data of all jobs to be executed.
+For each job, you could create a directory, put the binary and data and a shell script for executing the job inside.
 There also is a job queue file to which jobs can get appended and these are then executed by the workers.
 No rights management, no ssh, no nothing spectacular.
-Just a simple jar archive for both submitting jobs and launching worker threads.
+Just a simple jar archive for both submitting jobs to the queue and for launching jobs in worker threads.
 Each job is processed by a single worker thread.
+No management of parallelism except for that is done, i.e., jobs may be programs that can spawn arbitrarily many own threads.
+However, you can tag a job as `blocksMachine` meaning that no other job can be executed in parallel on the same machine.
+
+There is no central scheduling.
+Instead, the workers will query the job queue file for new tasks.
+Via a lock file, it is ensured that only one worker can read the queue file at once.
+For each worker PC, at most one idle thread will be querying the central job queue file.
+Since there is no central scheduling, we do not need any cluster management software or resource management software.
+
 Don't expect any high performance or great scalability.
 I don't care about that.
-I just want a simple distributed job executor that only needs a minimum software installation (i.e., Java). 
+I just want a simple distributed job executor that only needs a minimum software installation (i.e., Java).
+It uses a simple text file and a lock file for queue management, so if you have more than 10 or so worker PCs and more than 1000 or so jobs at once, expect a significant performance decrease.
 
 ## 2. Usage
 
@@ -33,17 +48,20 @@ The job executors will then execute the shell in that directory and write `COMMA
 The parameter `times` allows you to submit the same command a number of times.
 A job tagged with `blocksMachine` will block all job execution on one machine.
 It will only begin executing once all the threads on the machine are idle and no thread will begin or query for a new job until the blocking job is completed.
+This is intended for jobs that either spawn their own threads or that require lots of memory or do heavy I/O and thus might disturb other jobs running in parallel.
 
 ### 2.2. Job Execution
 
 `java -jar simpleCluster.jar run [cores=nCORES] [sh=/path/to/shell]`
 
-Start the worker threads that pick up the jobs and execute them one after the other.
+On each worker PC, you should launch one instance of the job executor.
+It will start the worker threads that pick up the jobs and execute them one after the other.
 Via `cores`, you can define the number of workers to launch.
 If `cores` is not specified, the number of workers will be equal to the number of processor cores.
 If `sh` is specified, it must be the path to the shell receiving the commands.
 If `sh` is not specified, we will use the default shell.
 For every command received, a new instance of the shell is launched and the command is piped to it.
+Once the shell has terminated, the worker thread will query for the next command.
 
 ### 2.3. Shared Directories under Ubuntu
 
