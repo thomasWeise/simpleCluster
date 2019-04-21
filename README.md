@@ -26,6 +26,7 @@ Via a lock file, it is ensured that only one worker can read the queue file at o
 For each worker PC, at most one idle thread will be querying the central job queue file.
 Since there is no central scheduling, we do not need any cluster management software or resource management software.
 
+The whole cluster management software (if we want to call it that) is super-small, just 22 KiB in size.
 Don't expect any high performance or great scalability.
 I don't care about that.
 I just want a simple distributed job executor that only needs a minimum software installation (i.e., Java).
@@ -74,10 +75,11 @@ To create a permanently shared directory under Linux, proceed as follows.
 1. Create the shared directory on the main file server computer, let's call the share `cluster`.
 2. On every single of the working computers and on the computer from which you want to submit jobs, proceed as follows:
    1. `sudo mkdir -p /cluster` (create the local cluster directory)
-   2. `sudo nano /etc/fstab` to edit the file system list
-   3. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the username and password.
-   4. save and exit `nano`
-   5. do `sudo mount -a`
+   2. `sudo chown USER /cluster`, where user is the user under which the cluster engine is executed
+   3. `sudo nano /etc/fstab` to edit the file system list
+   4. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the username and password.
+   5. save and exit `nano`
+   6. do `sudo mount -a`
 
 You now can access the same shared directory, `/cluster`, from your job submission PC and from all worker PCs.
 Now you should copy the `simpleCluster.jar` there.
