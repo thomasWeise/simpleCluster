@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import simpleCluster.Main;
+import thomasWeise.simpleCluster.Main;
 
 /** A class for testing the simple cluster engine */
 public class MainTest {

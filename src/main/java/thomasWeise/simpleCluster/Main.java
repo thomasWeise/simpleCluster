@@ -1,4 +1,4 @@
-package simpleCluster;
+package thomasWeise.simpleCluster;
 
 import thomasWeise.tools.Configuration;
 import thomasWeise.tools.ConsoleIO;

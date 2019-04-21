@@ -1,4 +1,4 @@
-package simpleCluster;
+package thomasWeise.simpleCluster;
 
 import java.io.BufferedWriter;
 import java.nio.file.FileAlreadyExistsException;
@@ -61,6 +61,9 @@ final class _Queue {
 
   /** are we locked, i.e., waiting for single-machine job? */
   private static volatile int s_locked = 0;
+
+  /** the pending jobs */
+  private static volatile int s_pending = 0;
 
   /**
    * access the queue to store or pull a job
@@ -299,6 +302,23 @@ final class _Queue {
   }
 
   /**
+   * do the job sleeping
+   *
+   * @param jobSleepTime
+   *          the job sleeping
+   * @return the job sleep time
+   */
+  private static final long __jobSleep(final long jobSleepTime) {
+    try {
+      Thread.sleep(jobSleepTime); // wait
+    } catch (final InterruptedException ie) {
+      // ignore
+    }
+    return (Math.max(_Queue.MIN_JOB_SLEEP,
+        Math.min(_Queue.MAX_JOB_SLEEP, (jobSleepTime * 11) / 9)));
+  }
+
+  /**
    * extract and execute a job from the queue
    *
    * @param executor
@@ -321,7 +341,8 @@ final class _Queue {
               (requiresLock && (_Queue.s_running <= 0))) {
             // we need the lock and no one else is running
             ++_Queue.s_running;
-            break looper;
+            --_Queue.s_pending; // decrease pending counter
+            break looper; // only way to escape looper: can execute
           }
           // here, definitely s_locked must be true
         } // end got job
@@ -344,35 +365,36 @@ final class _Queue {
         // we can only get here if there has not been any locking
         _Queue.__accessQueue(_Queue::__readJob, res);
         if (res[0] == null) { // got no job
-          try {
-            Thread.sleep(jobSleep); // wait
-          } catch (final InterruptedException ie) {
-            // ignore
+          if ((_Queue.s_pending) <= 0) {
+            // if no job is pending, directly execute wait to block other
+            // threads
+            jobSleep = _Queue.__jobSleep(jobSleep);
+            continue looper;
           }
-          jobSleep = Math.max(_Queue.MIN_JOB_SLEEP,
-              Math.min(_Queue.MAX_JOB_SLEEP, (jobSleep * 11) / 9));
-          continue looper;
-        }
-
-        if (_Queue._WHOLE_MACHINE.equals(res[0][2])) {
-          ++_Queue.s_locked; // got lock-requiring job: directly lock
-          requiresLock = true;
+        } else {
+          ++_Queue.s_pending;
+          if (_Queue._WHOLE_MACHINE.equals(res[0][2])) {
+            ++_Queue.s_locked; // got lock-requiring job: directly lock
+            requiresLock = true;
+          }
         }
       } // end synchronized
 
-      if (res[0] != null) {
-        ConsoleIO.stdout("received job '"//$NON-NLS-1$
-            + res[0][0] + "' for dir '"//$NON-NLS-1$
-            + res[0][1] + "' with tag " //$NON-NLS-1$
-            + res[0][2]);
+      if (res[0] == null) {
+        jobSleep = _Queue.__jobSleep(jobSleep);
+        continue looper;
       }
+      ConsoleIO.stdout("received job '"//$NON-NLS-1$
+          + res[0][0] + "' for dir '"//$NON-NLS-1$
+          + res[0][1] + "' with tag " //$NON-NLS-1$
+          + res[0][2]);
     } // end job waiting loop
 
     // we are now outside of the synchronization
-
-    if (res[0] == null) {
-      throw new IllegalStateException("job lost?");//$NON-NLS-1$
-    }
+    ConsoleIO.stdout("ready to execute job '"//$NON-NLS-1$
+        + res[0][0] + "' for dir '"//$NON-NLS-1$
+        + res[0][1] + "' with tag " //$NON-NLS-1$
+        + res[0][2]);
 
     try {// execute the job
       executor.accept(res[0][0], res[0][1]);
