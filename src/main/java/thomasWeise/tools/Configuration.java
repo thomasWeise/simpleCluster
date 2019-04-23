@@ -380,13 +380,13 @@ public final class Configuration {
             + res.getClass());
       }
 
-      for (final String dirname : System.getenv("PATH")//$NON-NLS-1$
+      for (final String dirname : System.getenv("PATH") //$NON-NLS-1$
           .split(File.pathSeparator)) {
         for (final String ext : new String[] { "", //$NON-NLS-1$
-            ".exe" }) {//$NON-NLS-1$
+            ".exe" }) { //$NON-NLS-1$
           path = IOUtils.canonicalizePath(dirname, name + ext);
           if (Files.isExecutable(path)) {
-            stdout = (name + " executable detected in PATH as "//$NON-NLS-1$
+            stdout = (name + " executable detected in PATH as " //$NON-NLS-1$
                 + path);
             Configuration.CONFIGURATION.put(name, path);
             break synch;
@@ -396,12 +396,12 @@ public final class Configuration {
       path = null;
 
       try {
-        final Process process = Runtime.getRuntime().exec("which " + name);//$NON-NLS-1$
+        final Process process = Runtime.getRuntime().exec("which " + name); //$NON-NLS-1$
         try (BufferedReader in = new BufferedReader(
             new InputStreamReader(process.getInputStream()))) {
           path = IOUtils.canonicalizePath(Paths.get(in.readLine()));
           if (Files.isExecutable(path)) {
-            stdout = (name + " executable found via which as "//$NON-NLS-1$
+            stdout = (name + " executable found via which as " //$NON-NLS-1$
                 + path);
             Configuration.CONFIGURATION.put(name, path);
             break synch;
@@ -420,8 +420,8 @@ public final class Configuration {
       ConsoleIO.stdout(stdout);
     }
     if (path == null) {
-      ConsoleIO.stdout("no '"//$NON-NLS-1$
-          + name + "' executable detected.");//$NON-NLS-1$
+      ConsoleIO.stdout("no " + name + //$NON-NLS-1$
+          " executable detected."); //$NON-NLS-1$
     }
     return path;
   }
