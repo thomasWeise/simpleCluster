@@ -78,9 +78,9 @@ All files copied to the shared directory by any actor (clients, workers, servers
 First, we create a permanently shared directory on the server, which is nicely discussed [on this website](http://websiteforstudents.com/samba-setup-on-ubuntu-16-04-17-10-18-04-with-windows-systems/) and which I summarize here for Ubuntu.
 
 1. Install samba by doing `sudo apt-get install samba samba-common python-glade2 system-config-samba`.
-2. Add the directory to the samba configuration, by editing the file `/etc/samba/smb.conf`
-   1. do `sudo nano /etc/samba/smb.conf`
-   2. add text like this to the bottom of the file, where `/cluster` the path to directory to share, `cluster` is the name under which it will be shared, and `USER` is the user name that you will use.
+2. Add the directory to the samba configuration, by editing the file `/etc/samba/smb.conf` and therefore do the following:
+3. do `sudo nano /etc/samba/smb.conf`
+4. add text like this to the bottom of the file, where `/cluster` the path to directory to share, `cluster` is the name under which it will be shared, and `USER` is the user name that you will use.
 ```
 [cluster]
    path = /cluster
@@ -92,11 +92,11 @@ First, we create a permanently shared directory on the server, which is nicely d
    directory mode = 0777
    force user = USER
 ```
-   3. if the directory does not yet exist, create it via `sudo mkdir -p /cluster`
-   4. do `sudo chown -R USER /cluster`
-   5. do `sudo chmod -R 0775 /cluster`
-   6. close nano and store the changes
-3. do `sudo service smbd restart`
+5. if the directory does not yet exist, create it via `sudo mkdir -p /cluster`
+6. do `sudo chown -R USER /cluster`
+7. do `sudo chmod -R 0775 /cluster`
+8. close nano and store the changes
+9. do `sudo service smbd restart`
 
 
 ### 2.4. Mounting Shared Directories under Ubuntu
