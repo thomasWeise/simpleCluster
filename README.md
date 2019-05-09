@@ -68,16 +68,47 @@ If `sh` is not specified, we will use the default shell.
 For every command received, a new instance of the shell is launched and the command is piped to it.
 Once the shell has terminated, the worker thread will query for the next command.
 
-### 2.3. Shared Directories under Ubuntu
+### 2.3. Creating Shared Directory under Ubuntu
 
-To create a permanently shared directory under Linux, proceed as follows.
+Our scheduler is based on the use of shared directories.
+On a server computer, a directory exists and is shared.
+The client computers "mount" this shared directory under the same path.
+All files copied to the shared directory by any actor (clients, workers, servers) who can access it will then be visible to all of them.
 
-1. Create the shared directory on the main file server computer, let's call the share `cluster`.
+First, we create a permanently shared directory on the server, which is nicely discussed [on this website](http://websiteforstudents.com/samba-setup-on-ubuntu-16-04-17-10-18-04-with-windows-systems/) and which I summarize here for Ubuntu.
+
+1. Install samba by doing `sudo apt-get install samba samba-common python-glade2 system-config-samba`.
+2. Add the directory to the samba configuration, by editing the file `/etc/samba/smb.conf`
+   1. do `sudo nano /etc/samba/smb.conf`
+   2. add text like this to the bottom of the file, where `/cluster` the path to directory to share, `cluster` is the name under which it will be shared, and `USER` is the user name that you will use.
+```
+[cluster]
+   path = /cluster
+   writable = yes
+   guest ok = yes
+   guest only = yes
+   read only = no
+   create mode = 0777
+   directory mode = 0777
+   force user = USER
+```
+   3. if the directory does not yet exist, create it via `sudo mkdir -p /cluster`
+   4. do `sudo chown -R USER /cluster`
+   5. do `sudo chmod -R 0775 /cluster`
+   6. close nano and store the changes
+3. do `sudo service smbd restart`
+
+
+### 2.4. Mounting Shared Directories under Ubuntu
+
+To permanently mount a shared directory under Linux, proceed as follows.
+
+1. Create the shared directory on the main file server computer, let's call the share `cluster` as discussed in the previous section.
 2. On every single of the working computers and on the computer from which you want to submit jobs, proceed as follows:
    1. `sudo mkdir -p /cluster` (create the local cluster directory)
    2. `sudo chown USER /cluster`, where user is the user under which the cluster engine is executed
    3. `sudo nano /etc/fstab` to edit the file system list
-   4. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the username and password.
+   4. add the line `//SERVER_IP/cluster /cluster/ cifs guest,username=USER,password=PASSWORD,iocharset=utf8,file_mode=0777,dir_mode=0777,noperm 0 0`, where `SERVER_IP` be the IP-address of the file server, and `USER` and `PASSWORD` be the user name and password.
    5. save and exit `nano`
    6. do `sudo mount -a`
 
